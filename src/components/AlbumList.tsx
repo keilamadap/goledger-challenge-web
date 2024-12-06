@@ -18,17 +18,36 @@ import {
   CircularProgress,
 } from "@mui/material";
 import {
-  fetchAlbums,
-  fetchArtists,
+  fetchSchema,
   addAlbum,
   updateAlbum,
   deleteAlbum,
+  fetchAlbums,
 } from "../services/api";
+
+const artists = [
+  {
+    description: "Artist",
+    dynamic: false,
+    label: "Artist",
+    tag: "artist",
+    writers: null,
+  },
+  {
+    description: "Album",
+    dynamic: false,
+    label: "Album",
+    tag: "album",
+    writers: null,
+  },
+];
 
 const AlbumList: React.FC = () => {
   const queryClient = useQueryClient();
   const { data: albums, isLoading, isError } = useQuery("albums", fetchAlbums);
-  const { data: artists } = useQuery("artists", fetchArtists);
+
+  console.log(albums);
+  // const { data: artists } = useQuery("artists", fetchArtists);
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [artistId, setArtistId] = useState("");
@@ -112,7 +131,7 @@ const AlbumList: React.FC = () => {
         </Typography>
       ) : (
         <List>
-          {albums &&
+          {/* {albums &&
             albums.map(
               (album: { id: string; title: string; artistId: string }) => (
                 <ListItem key={album.id} divider>
@@ -133,7 +152,7 @@ const AlbumList: React.FC = () => {
                   </Button>
                 </ListItem>
               )
-            )}
+            )} */}
         </List>
       )}
       <Dialog open={open} onClose={handleClose}>
@@ -149,7 +168,7 @@ const AlbumList: React.FC = () => {
           />
           <FormControl fullWidth margin="dense">
             <InputLabel>Artist</InputLabel>
-            <Select
+            {/* <Select
               value={artistId}
               onChange={(e) => setArtistId(e.target.value as string)}
             >
@@ -159,7 +178,7 @@ const AlbumList: React.FC = () => {
                     {artist.name}
                   </MenuItem>
                 ))}
-            </Select>
+            </Select> */}
           </FormControl>
         </DialogContent>
         <DialogActions>

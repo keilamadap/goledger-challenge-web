@@ -1,27 +1,37 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://api.example.com", // Replace with your actual API base URL
+  baseURL: "http://ec2-54-91-215-149.compute-1.amazonaws.com/api",
+  headers: {
+    Authorization: "Basic cHNBZG1pbjpnb2xlZGdlcg==",
+    Accept: "application/json",
+  },
 });
 
-export const fetchArtists = async () => {
-  const response = await api.get("/artists");
-  return response.data;
-};
-
-export const fetchAlbums = async () => {
-  const response = await api.get("/albums");
+export const fetchSchema = async () => {
+  const response = await api.get("/query/getSchema");
   return response.data;
 };
 
 export const fetchSongs = async () => {
-  const response = await api.get("/songs");
-  return response.data;
+  const response = await api.post("query/search", {
+    query: {
+      selector: {
+        "@assetType": "song",
+      },
+    },
+  });
+  return response.data.result;
 };
-
-export const fetchPlaylists = async () => {
-  const response = await api.get("/playlists");
-  return response.data;
+export const fetchAlbums = async () => {
+  const response = await api.post("query/search", {
+    query: {
+      selector: {
+        "@assetType": "album",
+      },
+    },
+  });
+  return response.data.result;
 };
 
 export const addArtist = async (artist: { name: string }) => {

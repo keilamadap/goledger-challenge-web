@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppContext } from "../contexts/AppContext";
 import {
   List,
@@ -16,13 +16,24 @@ import {
   FormControl,
   Typography,
 } from "@mui/material";
+import { useQuery } from "react-query";
+import { fetchAlbums, fetchSongs } from "../services/api";
 
 const SongList: React.FC = () => {
-  const { songs, albums, addSong, updateSong, removeSong } = useAppContext();
+  const { addSong, updateSong, removeSong } = useAppContext();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
-  const [albumId, setAlbumId] = useState("");
+  const [albumId, setAlbumId] = useState<string>("");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const {
+    data: songs,
+    isLoading,
+    isError,
+  } = useQuery("songs", () => fetchSongs());
+
+  const { data: albums } = useQuery("albums", () => fetchAlbums());
+  // console.log("albums:", albums);
+  // console.log("songs:", songs);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -41,11 +52,23 @@ const SongList: React.FC = () => {
     handleClose();
   };
 
-  const handleEdit = (song: { id: string; title: string; albumId: string }) => {
-    setTitle(song.title);
-    setAlbumId(song.albumId);
-    setEditingId(song.id);
+  const handleEdit = (song: {
+    key: string;
+    name: string;
+    album: { key: string };
+  }) => {
+    setTitle(song.name);
+    setEditingId(song.key);
+    // @ts-ignore
+    setAlbumId(song.album["@key"]);
     setOpen(true);
+  };
+
+  const getAlbumName = (albumKey: string): string => {
+    const album = albums?.find(
+      (album: { key: string; "@key"?: string }) => album["@key"] === albumKey
+    );
+    return album ? album.name : "Unknown Album";
   };
 
   return (
@@ -67,17 +90,16 @@ const SongList: React.FC = () => {
         <List>
           {songs &&
             songs.map(
-              (song: { id: string; title: string; albumId: string }) => (
-                <ListItem key={song.id} divider>
+              (song: { key: string; name: string; album: { key: string } }) => (
+                <ListItem key={song.key} divider>
                   <ListItemText
-                    primary={song.title}
-                    secondary={
-                      albums.find((a) => a.id === song.albumId)?.title ||
-                      "Unknown Album"
-                    }
+                    primary={song.name}
+                    // @ts-ignore
+                    secondary={getAlbumName(song.album["@key"])}
                   />
                   <Button onClick={() => handleEdit(song)}>Edit</Button>
-                  <Button onClick={() => removeSong(song.id)} color="error">
+
+                  <Button onClick={() => removeSong(song.key)} color="error">
                     Delete
                   </Button>
                 </ListItem>
@@ -97,16 +119,21 @@ const SongList: React.FC = () => {
             onChange={(e) => setTitle(e.target.value)}
           />
           <FormControl fullWidth margin="dense">
-            <InputLabel>Album</InputLabel>
+            <InputLabel shrink id="album-label">
+              Album
+            </InputLabel>
             <Select
-              value={albumId}
+              label="Album"
+              value={albumId || ""}
               onChange={(e) => setAlbumId(e.target.value as string)}
             >
-              {albums.map((album) => (
-                <MenuItem key={album.id} value={album.id}>
-                  {album.title}
-                </MenuItem>
-              ))}
+              {albums &&
+                albums?.map((album: { key: string; name: string }) => (
+                  // @ts-ignore
+                  <MenuItem key={album["@key"]} value={album["@key"]}>
+                    {album.name}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
         </DialogContent>

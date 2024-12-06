@@ -14,7 +14,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import {
-  fetchArtists,
+  fetchSchema,
   addArtist,
   updateArtist,
   deleteArtist,
@@ -26,7 +26,7 @@ const ArtistList: React.FC = () => {
     data: artists,
     isLoading,
     isError,
-  } = useQuery("artists", fetchArtists);
+  } = useQuery("artists", fetchSchema);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
