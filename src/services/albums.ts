@@ -1,8 +1,8 @@
 import { Album, CreateAlbumData, UpdateAlbumData } from "../interfaces/album";
-import apiClient from "./apiClient";
+import api from "./api";
 
 export const fetchAlbums = async (): Promise<Album[]> => {
-  const response = await apiClient.post("/query/search", {
+  const response = await api.post("/query/search", {
     query: {
       selector: {
         "@assetType": "album",
@@ -16,7 +16,7 @@ export const createAlbum = async (
   albumData: CreateAlbumData
 ): Promise<unknown> => {
   const { name, year, artist } = albumData;
-  const response = await apiClient.post("/invoke/createAsset", {
+  const response = await api.post("/invoke/createAsset", {
     asset: [
       {
         "@assetType": "album",
@@ -34,10 +34,9 @@ export const createAlbum = async (
 export const updateAlbum = async (
   albumData: UpdateAlbumData
 ): Promise<unknown> => {
-  const response = await apiClient.put("/invoke/updateAsset", {
+  const response = await api.put("/invoke/updateAsset", {
     update: {
       "@assetType": "album",
-      // "@key": albumData.id,
       year: albumData.year,
 
       ...albumData,
@@ -48,7 +47,7 @@ export const updateAlbum = async (
 };
 
 export const removeAlbum = async (key: string): Promise<unknown> => {
-  const response = await apiClient.delete("/invoke/deleteAsset", {
+  const response = await api.delete("/invoke/deleteAsset", {
     data: {
       key: {
         "@assetType": "album",

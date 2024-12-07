@@ -29,10 +29,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </Container>
       <Box
         component="footer"
-        sx={{ py: 3, px: 2, mt: "auto", backgroundColor: "background.paper" }}
+        sx={{ py: 3, px: 2, mt: "auto", backgroundColor: "#401055" }}
       >
         <Container maxWidth="sm">
-          <Typography variant="body2" color="text.secondary" align="center">
+          <Typography variant="body2" color="#be2fff" align="center">
             © {new Date().getFullYear()} Blockchain Streaming Service
           </Typography>
         </Container>

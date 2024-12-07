@@ -20,17 +20,17 @@ import {
   Box,
 } from "@mui/material";
 import * as yup from "yup";
-import { fetchAlbums } from "../services/api";
-import { fetchArtists } from "../services/artists";
-import { Album } from "../interfaces/album";
-import { Artist } from "../interfaces/artists";
-import SimpleSnackbar from "./Snackbar/Snackbar";
+import { fetchAlbums } from "../../services/albums";
+import { fetchArtists } from "../../services/artists";
+import { Album } from "../../interfaces/album";
+import { Artist } from "../../interfaces/artists";
+import SimpleSnackbar from "../Snackbar/Snackbar";
 import { Controller, useForm } from "react-hook-form";
 import CreateIcon from "@mui/icons-material/Create";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { createAlbum, removeAlbum, updateAlbum } from "../services/albums";
-import ConfirmDialog from "./ConfirmDialog/ConfirmDialog";
+import { createAlbum, removeAlbum, updateAlbum } from "../../services/albums";
+import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
 
 const validationSchema = yup.object({
   album: yup.string().required("Album title is required"),

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useAppContext } from "../contexts/AppContext";
+// import { useAppContext } from "../contexts/AppContext";
 import {
   List,
   ListItem,
@@ -18,8 +18,6 @@ import {
 } from "@mui/material";
 
 const PlaylistList: React.FC = () => {
-  const { playlists, songs, addPlaylist, updatePlaylist, removePlaylist } =
-    useAppContext();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
@@ -35,9 +33,9 @@ const PlaylistList: React.FC = () => {
 
   const handleSubmit = () => {
     if (editingId) {
-      updatePlaylist(editingId, { name, songIds: selectedSongs });
+      // updatePlaylist(editingId, { name, songIds: selectedSongs });
     } else {
-      addPlaylist({ name, songIds: selectedSongs });
+      // addPlaylist({ name, songIds: selectedSongs });
     }
     handleClose();
   };
@@ -66,7 +64,7 @@ const PlaylistList: React.FC = () => {
       >
         Add Playlist
       </Button>
-      {playlists && playlists.length === 0 ? (
+      {/* {playlists && playlists.length === 0 ? (
         <Typography>
           No playlists found. Create a playlist to get started!
         </Typography>
@@ -91,12 +89,12 @@ const PlaylistList: React.FC = () => {
               )
             )}
         </List>
-      )}
+      )} */}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>
           {editingId ? "Edit Playlist" : "Add Playlist"}
         </DialogTitle>
-        <DialogContent>
+        {/* <DialogContent>
           <TextField
             autoFocus
             margin="dense"
@@ -128,7 +126,7 @@ const PlaylistList: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-        </DialogContent>
+        </DialogContent> */}
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button onClick={handleSubmit} variant="contained" color="primary">

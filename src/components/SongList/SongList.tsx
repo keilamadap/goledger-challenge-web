@@ -19,17 +19,22 @@ import {
   Backdrop,
   FormHelperText,
 } from "@mui/material";
-import { addSong, fetchSongs, removeSong, updateSong } from "../services/songs";
-import { fetchAlbums } from "../services/albums";
-import { ApiResponse, Song } from "../interfaces/songs";
+import {
+  addSong,
+  fetchSongs,
+  removeSong,
+  updateSong,
+} from "../../services/songs";
+import { fetchAlbums } from "../../services/albums";
+import { ApiResponse, Song } from "../../interfaces/songs";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
-import { Album } from "../interfaces/album";
-import Snackbar from "./Snackbar/Snackbar";
+import { Album } from "../../interfaces/album";
+import Snackbar from "../Snackbar/Snackbar";
 import CreateIcon from "@mui/icons-material/Create";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { yupResolver } from "@hookform/resolvers/yup";
-import ConfirmDialog from "./ConfirmDialog/ConfirmDialog";
+import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
 
 const validationSchema = yup.object({
   title: yup.string().required("Song title is required"),

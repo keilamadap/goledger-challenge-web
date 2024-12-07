@@ -1,5 +1,5 @@
 import { ApiResponse } from "../interfaces/songs";
-import apiClient from "./apiClient";
+import apiClient from "./api";
 
 type CreateSongPayload = {
   id?: string;

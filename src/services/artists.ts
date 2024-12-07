@@ -3,7 +3,7 @@ import {
   CreateArtistData,
   UpdateArtistData,
 } from "../interfaces/artists";
-import apiClient from "./apiClient";
+import apiClient from "./api";
 
 export const fetchArtists = async (): Promise<Artist[]> => {
   const response = await apiClient.post("/query/search", {

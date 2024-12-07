@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "react-query";
 import {
   List,
   ListItem,
@@ -13,45 +12,11 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material";
-import {
-  fetchSchema,
-  addArtist,
-  updateArtist,
-  deleteArtist,
-} from "../services/api";
 
 const ArtistList: React.FC = () => {
-  const queryClient = useQueryClient();
-  const {
-    data: artists,
-    isLoading,
-    isError,
-  } = useQuery("artists", fetchSchema);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
-
-  const addMutation = useMutation(addArtist, {
-    onSuccess: () => {
-      queryClient.invalidateQueries("artists");
-    },
-  });
-
-  const updateMutation = useMutation(
-    ({ id, artist }: { id: string; artist: { name: string } }) =>
-      updateArtist(id, artist),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries("artists");
-      },
-    }
-  );
-
-  const deleteMutation = useMutation(deleteArtist, {
-    onSuccess: () => {
-      queryClient.invalidateQueries("artists");
-    },
-  });
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -62,9 +27,9 @@ const ArtistList: React.FC = () => {
 
   const handleSubmit = () => {
     if (editingId) {
-      updateMutation.mutate({ id: editingId, artist: { name } });
+      // updateMutation.mutate({ id: editingId, artist: { name } });
     } else {
-      addMutation.mutate({ name });
+      // addMutation.mutate({ name });
     }
     handleClose();
   };
@@ -74,10 +39,6 @@ const ArtistList: React.FC = () => {
     setEditingId(artist.id);
     setOpen(true);
   };
-
-  if (isLoading) return <CircularProgress />;
-  if (isError)
-    return <Typography color="error">Error loading artists</Typography>;
 
   return (
     <>
@@ -92,7 +53,7 @@ const ArtistList: React.FC = () => {
       >
         Add Artist
       </Button>
-      {artists && artists.length === 0 ? (
+      {/* {artists && artists.length === 0 ? (
         <Typography>
           No artists found. Add some artists to get started!
         </Typography>
@@ -112,7 +73,7 @@ const ArtistList: React.FC = () => {
               </ListItem>
             ))}
         </List>
-      )}
+      )} */}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{editingId ? "Edit Artist" : "Add Artist"}</DialogTitle>
         <DialogContent>
