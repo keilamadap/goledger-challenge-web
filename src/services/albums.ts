@@ -1,4 +1,8 @@
-import { Album, CreateAlbumData, UpdateAlbumData } from "../interfaces/album";
+import {
+  Album,
+  CreateAlbumParams,
+  UpdateAlbumParams,
+} from "../interfaces/album";
 import api from "./api";
 
 export const fetchAlbums = async (): Promise<Album[]> => {
@@ -13,7 +17,7 @@ export const fetchAlbums = async (): Promise<Album[]> => {
 };
 
 export const createAlbum = async (
-  albumData: CreateAlbumData
+  albumData: CreateAlbumParams
 ): Promise<unknown> => {
   const { name, year, artist } = albumData;
   const response = await api.post("/invoke/createAsset", {
@@ -32,17 +36,15 @@ export const createAlbum = async (
 };
 
 export const updateAlbum = async (
-  albumData: UpdateAlbumData
+  albumData: UpdateAlbumParams
 ): Promise<unknown> => {
   const response = await api.put("/invoke/updateAsset", {
     update: {
       "@assetType": "album",
       year: albumData.year,
-
       ...albumData,
     },
   });
-  console.log(" response.data", response.data);
   return response.data;
 };
 

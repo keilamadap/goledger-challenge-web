@@ -119,11 +119,11 @@ const AlbumList: React.FC = () => {
       }
 
       handleCloseNewAlbumModal();
-      handleSnackbar("Album saved successfully!", "success");
+      handleSnackbar("Album saved successfully", "success");
 
       await getData();
     } catch (error) {
-      handleSnackbar("Error saving the album.", "error");
+      handleSnackbar("Error saving the album", "error");
     } finally {
       setIsLoading(false);
     }
@@ -153,9 +153,9 @@ const AlbumList: React.FC = () => {
       await removeAlbum(albumToRemove["@key"]);
       const updatedSongs = await fetchAlbums();
       setAlbums(updatedSongs);
-      handleSnackbar("Album removed successfully!", "success");
+      handleSnackbar("Album removed successfully", "success");
     } catch (error) {
-      handleSnackbar("Error removing the album.", "error");
+      handleSnackbar("Error removing the album", "error");
     } finally {
       setIsLoading(false);
       setIsDialogOpen(false);

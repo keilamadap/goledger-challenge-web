@@ -5,12 +5,12 @@ export type Artist = {
   "@key": string;
 };
 
-export type CreateArtistData = {
+export type CreateArtistParams = {
   name: string;
   country: string;
 };
 
-export type UpdateArtistData = {
+export type UpdateArtistParams = {
   name?: string;
   country?: string;
 };

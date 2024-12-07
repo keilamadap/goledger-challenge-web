@@ -1,4 +1,4 @@
-export interface Album {
+export type Album = {
   id: string;
   albumId: string;
   name: string;
@@ -8,20 +8,20 @@ export interface Album {
     "@assetType": string;
     "@key": string;
   };
-}
+};
 
 export type artistSelectedType = {
   name: string;
   "@key": string;
 };
 
-export type CreateAlbumData = {
+export type CreateAlbumParams = {
   name: string;
   year: number;
   artist: artistSelectedType;
 };
 
-export type UpdateAlbumData = {
+export type UpdateAlbumParams = {
   name: string;
   year?: number;
 };

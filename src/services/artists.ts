@@ -1,7 +1,7 @@
 import {
   Artist,
-  CreateArtistData,
-  UpdateArtistData,
+  CreateArtistParams,
+  UpdateArtistParams,
 } from "../interfaces/artists";
 import apiClient from "./api";
 
@@ -17,7 +17,7 @@ export const fetchArtists = async (): Promise<Artist[]> => {
 };
 
 export const createArtist = async (
-  artistData: CreateArtistData
+  artistData: CreateArtistParams
 ): Promise<unknown> => {
   console.log("artistData", artistData);
   const response = await apiClient.post("/invoke/createAsset", {
@@ -34,7 +34,7 @@ export const createArtist = async (
 
 export const updateArtist = async (
   key: string,
-  artistData: UpdateArtistData
+  artistData: UpdateArtistParams
 ): Promise<unknown> => {
   console.log("artistData", artistData, key);
   const response = await apiClient.put("/invoke/updateAsset", {

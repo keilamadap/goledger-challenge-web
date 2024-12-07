@@ -97,10 +97,10 @@ const SongList: React.FC = () => {
           name: data.title,
           albumId: data.albumId,
         });
-        handleSnackbar("Song updated successfully!", "success");
+        handleSnackbar("Song updated successfully", "success");
       } else {
         await addSong({ name: data.title, albumId: data.albumId });
-        handleSnackbar("Song added successfully!", "success");
+        handleSnackbar("Song added successfully", "success");
       }
       const updatedSongs: ApiResponse = await fetchSongs();
       setSongs(updatedSongs.result);
@@ -108,7 +108,7 @@ const SongList: React.FC = () => {
       setAlbums(updatedAlbums);
       handleCloseNewSongModal();
     } catch (error) {
-      handleSnackbar("Error saving the song.", "error");
+      handleSnackbar("Error saving the song", "error");
     } finally {
       setIsLoading(false);
     }
@@ -135,9 +135,9 @@ const SongList: React.FC = () => {
       });
       const updatedSongs: ApiResponse = await fetchSongs();
       setSongs(updatedSongs.result);
-      handleSnackbar("Song removed successfully!", "success");
+      handleSnackbar("Song removed successfully", "success");
     } catch (error) {
-      handleSnackbar("Error removing the song.", "error");
+      handleSnackbar("Error removing the song", "error");
     } finally {
       setIsLoading(false);
       setIsDialogOpen(false);

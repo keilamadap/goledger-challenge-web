@@ -1,12 +1,5 @@
-import { ApiResponse } from "../interfaces/songs";
+import { ApiResponse, CreateSongParams } from "../interfaces/songs";
 import apiClient from "./api";
-
-type CreateSongPayload = {
-  id?: string;
-  name: string;
-  albumId: string;
-  "@key"?: string;
-};
 
 export const fetchSongs = async (): Promise<ApiResponse> => {
   const response = await apiClient.post("/query/search", {
@@ -19,7 +12,7 @@ export const fetchSongs = async (): Promise<ApiResponse> => {
   return response.data;
 };
 
-export const addSong = async (payload: CreateSongPayload): Promise<unknown> => {
+export const addSong = async (payload: CreateSongParams): Promise<unknown> => {
   const { name, albumId } = payload;
   const { data } = await apiClient.post("/invoke/createAsset", {
     asset: [
@@ -36,7 +29,7 @@ export const addSong = async (payload: CreateSongPayload): Promise<unknown> => {
 };
 
 export const updateSong = async (
-  payload: CreateSongPayload
+  payload: CreateSongParams
 ): Promise<unknown> => {
   const { name, albumId, id } = payload;
   const { data } = await apiClient.put("/invoke/updateAsset", {
