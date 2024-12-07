@@ -17,6 +17,7 @@ import {
   Box,
   CircularProgress,
   Backdrop,
+  FormHelperText,
 } from "@mui/material";
 import { addSong, fetchSongs, removeSong, updateSong } from "../services/songs";
 import { fetchAlbums } from "../services/albums";
@@ -28,6 +29,7 @@ import Snackbar from "./Snackbar/Snackbar";
 import CreateIcon from "@mui/icons-material/Create";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { yupResolver } from "@hookform/resolvers/yup";
+import ConfirmDialog from "./ConfirmDialog/ConfirmDialog";
 
 const validationSchema = yup.object({
   title: yup.string().required("Song title is required"),
@@ -36,7 +38,8 @@ const validationSchema = yup.object({
 
 const SongList: React.FC = () => {
   const [open, setOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string>("");
+  const [editingId, setEditingId] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [songs, setSongs] = useState<Song[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
@@ -45,12 +48,7 @@ const SongList: React.FC = () => {
     "success" | "error" | "warning" | "info"
   >("success");
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleSnackbar = (message: string, severity: "success" | "error") => {
-    setSnackbarMessage(message);
-    setIsSnackbarOpen(true);
-    setSnackbarSeverity(severity);
-  };
+  const [songToRemove, setSongToRemove] = useState<Song | null>(null);
 
   const {
     control,
@@ -63,7 +61,23 @@ const SongList: React.FC = () => {
     defaultValues: { title: "", albumId: "" },
   });
 
-  const handleClose = () => {
+  const handleSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbarMessage(message);
+    setIsSnackbarOpen(true);
+    setSnackbarSeverity(severity);
+  };
+
+  const handleOpenConfirmDialog = (song: Song) => {
+    setSongToRemove(song);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setIsDialogOpen(false);
+    setSongToRemove(null);
+  };
+
+  const handleCloseNewSongModal = () => {
     setOpen(false);
     setEditingId("");
     reset();
@@ -85,7 +99,9 @@ const SongList: React.FC = () => {
       }
       const updatedSongs: ApiResponse = await fetchSongs();
       setSongs(updatedSongs.result);
-      handleClose();
+      const updatedAlbums = await fetchAlbums();
+      setAlbums(updatedAlbums);
+      handleCloseNewSongModal();
     } catch (error) {
       handleSnackbar("Error saving the song.", "error");
     } finally {
@@ -103,13 +119,14 @@ const SongList: React.FC = () => {
     [setValue]
   );
 
-  const handleRemoveSong = useCallback(async (song: Song) => {
+  const handleRemoveSong = useCallback(async () => {
+    if (!songToRemove) return;
     setIsLoading(true);
     try {
       await removeSong({
-        id: song["@key"],
-        name: song.name,
-        albumId: song.album["@key"],
+        id: songToRemove["@key"],
+        name: songToRemove.name,
+        albumId: songToRemove.album["@key"],
       });
       const updatedSongs: ApiResponse = await fetchSongs();
       setSongs(updatedSongs.result);
@@ -118,8 +135,10 @@ const SongList: React.FC = () => {
       handleSnackbar("Error removing the song.", "error");
     } finally {
       setIsLoading(false);
+      setIsDialogOpen(false);
+      setSongToRemove(null);
     }
-  }, []);
+  }, [songToRemove]);
 
   const getAlbumName = (albumKey: string) => {
     const album = albums.find((album: Album) => album["@key"] === albumKey);
@@ -166,10 +185,10 @@ const SongList: React.FC = () => {
           color="secondary"
           sx={{ mb: 2 }}
         >
-          Add Song
+          Add song
         </Button>
       </Box>
-      {songs && songs.length === 0 ? (
+      {!isLoading && songs.length === 0 ? (
         <Typography>No songs found. Add some songs to get started!</Typography>
       ) : (
         <List>
@@ -182,15 +201,18 @@ const SongList: React.FC = () => {
               <Button onClick={() => handleEditSong(song)}>
                 <CreateIcon />
               </Button>
-              <Button onClick={() => handleRemoveSong(song)} color="error">
+              <Button
+                onClick={() => handleOpenConfirmDialog(song)}
+                color="error"
+              >
                 <DeleteOutlineIcon />
               </Button>
             </ListItem>
           ))}
         </List>
       )}
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{editingId ? "Edit Song" : "Add Song"}</DialogTitle>
+      <Dialog open={open} onClose={handleCloseNewSongModal}>
+        <DialogTitle>{editingId ? "Edit song" : "Add song"}</DialogTitle>
         <DialogContent>
           <Controller
             name="title"
@@ -200,19 +222,20 @@ const SongList: React.FC = () => {
                 {...field}
                 autoFocus
                 margin="dense"
-                label="Song Title"
+                label="Song title"
                 fullWidth
                 error={!!errors.title}
                 helperText={errors.title?.message}
               />
             )}
           />
-          <FormControl fullWidth margin="dense">
-            <InputLabel id="album-label">Album</InputLabel>
-            <Controller
-              name="albumId"
-              control={control}
-              render={({ field }) => (
+
+          <Controller
+            name="albumId"
+            control={control}
+            render={({ field }) => (
+              <FormControl fullWidth margin="dense" error={!!errors.albumId}>
+                <InputLabel>Album</InputLabel>
                 <Select {...field} label="Album" error={!!errors.albumId}>
                   {albums.map((album) => (
                     <MenuItem key={album["@key"]} value={album["@key"]}>
@@ -220,21 +243,21 @@ const SongList: React.FC = () => {
                     </MenuItem>
                   ))}
                 </Select>
-              )}
-            />
-            {errors.albumId && (
-              <Typography color="error">{errors.albumId.message}</Typography>
+                {errors.albumId && (
+                  <FormHelperText>{errors.albumId.message}</FormHelperText>
+                )}
+              </FormControl>
             )}
-          </FormControl>
+          />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleCloseNewSongModal}>Cancel</Button>
           <Button
             onClick={formSubmit(handleSubmit)}
             variant="contained"
             color="secondary"
           >
-            SAVE
+            Save
           </Button>
         </DialogActions>
       </Dialog>
@@ -244,6 +267,14 @@ const SongList: React.FC = () => {
         isOpen={isSnackbarOpen}
         setIsOpen={setIsSnackbarOpen}
         message={snackbarMessage}
+      />
+
+      <ConfirmDialog
+        open={isDialogOpen}
+        onClose={handleCloseConfirmDialog}
+        onConfirm={handleRemoveSong}
+        title="Warning"
+        message={`Are you sure you want to delete the song "${songToRemove?.name}"?`}
       />
     </>
   );

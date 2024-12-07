@@ -15,14 +15,14 @@ export const fetchAlbums = async (): Promise<Album[]> => {
 export const createAlbum = async (
   albumData: CreateAlbumData
 ): Promise<unknown> => {
-  const { name, year, artistSelected } = albumData;
+  const { name, year, artist } = albumData;
   const response = await apiClient.post("/invoke/createAsset", {
     asset: [
       {
         "@assetType": "album",
         name: name,
         artist: {
-          "@key": artistSelected["@key"],
+          "@key": artist["@key"],
         },
         year: year,
       },
@@ -37,7 +37,7 @@ export const updateAlbum = async (
   const response = await apiClient.put("/invoke/updateAsset", {
     update: {
       "@assetType": "album",
-      "@key": albumData.id,
+      // "@key": albumData.id,
       year: albumData.year,
 
       ...albumData,
@@ -47,12 +47,13 @@ export const updateAlbum = async (
   return response.data;
 };
 
-export const deleteAlbum = async (key: string): Promise<unknown> => {
+export const removeAlbum = async (key: string): Promise<unknown> => {
   const response = await apiClient.delete("/invoke/deleteAsset", {
     data: {
       key: {
         "@assetType": "album",
         "@key": key,
+        cascade: true,
       },
     },
   });

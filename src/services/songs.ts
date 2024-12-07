@@ -5,6 +5,7 @@ type CreateSongPayload = {
   id?: string;
   name: string;
   albumId: string;
+  "@key"?: string;
 };
 
 export const fetchSongs = async (): Promise<ApiResponse> => {
@@ -37,17 +38,17 @@ export const addSong = async (payload: CreateSongPayload): Promise<unknown> => {
 export const updateSong = async (
   payload: CreateSongPayload
 ): Promise<unknown> => {
-  const { name, albumId } = payload;
+  const { name, albumId, id } = payload;
   const { data } = await apiClient.put("/invoke/updateAsset", {
-    update: [
-      {
-        "@assetType": "song",
-        name,
-        album: {
-          "@key": albumId,
-        },
+    update: {
+      "@assetType": "song",
+      name,
+      "@key": id,
+      album: {
+        "@assetType": "album",
+        "@key": albumId,
       },
-    ],
+    },
   });
   return data;
 };

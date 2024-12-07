@@ -12,11 +12,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <AppBar position="static" sx={{ backgroundColor: "#7b1fa2" }}>
         <Toolbar>
           <Typography
-            sx={{ display: "flex", alignItems: "center", gap: "1rem" }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: "1rem",
+            }}
             variant="h6"
           >
             <HeadsetIcon />
-            Blockchain Streaming Service
+            Streaming Platform
           </Typography>
         </Toolbar>
       </AppBar>

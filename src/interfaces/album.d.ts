@@ -4,6 +4,10 @@ export interface Album {
   name: string;
   year: string;
   "@key": string;
+  artist: {
+    "@assetType": string;
+    "@key": string;
+  };
 }
 
 export type artistSelectedType = {
@@ -13,12 +17,11 @@ export type artistSelectedType = {
 
 export type CreateAlbumData = {
   name: string;
-  year: string;
-  artistSelected: artistSelectedType;
+  year: number;
+  artist: artistSelectedType;
 };
 
 export type UpdateAlbumData = {
-  id: string;
   name: string;
-  year?: string;
+  year?: number;
 };
