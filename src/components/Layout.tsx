@@ -1,5 +1,6 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Container, Box } from "@mui/material";
+import HeadsetIcon from "@mui/icons-material/Headset";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -8,9 +9,15 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <AppBar position="static">
+      <AppBar position="static" sx={{ backgroundColor: "#7b1fa2" }}>
         <Toolbar>
-          <Typography variant="h6">Blockchain Streaming Service</Typography>
+          <Typography
+            sx={{ display: "flex", alignItems: "center", gap: "1rem" }}
+            variant="h6"
+          >
+            <HeadsetIcon />
+            Blockchain Streaming Service
+          </Typography>
         </Toolbar>
       </AppBar>
       <Container component="main" sx={{ mt: 4, mb: 4, flex: 1 }}>
