@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const api = axios.create({
+export const api = axios.create({
   baseURL: "http://ec2-54-91-215-149.compute-1.amazonaws.com/api",
   headers: {
     Authorization: "Basic cHNBZG1pbjpnb2xlZGdlcg==",
@@ -32,6 +32,11 @@ export const fetchAlbums = async () => {
     },
   });
   return response.data.result;
+};
+
+export const updateAsset = async (assetId: string, assetData: any) => {
+  const response = await api.put(`/invoke/updateAsset/${assetId}`, assetData);
+  return response.data;
 };
 
 export const addArtist = async (artist: { name: string }) => {

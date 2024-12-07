@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { useAppContext } from "../contexts/AppContext";
+import React, { useCallback, useState } from "react";
 import {
   List,
   ListItem,
@@ -16,58 +15,87 @@ import {
   FormControl,
   Typography,
 } from "@mui/material";
-import { useQuery } from "react-query";
-import { fetchAlbums, fetchSongs } from "../services/api";
+import { useMutation, useQuery } from "react-query";
+import { addSong, fetchSongs, removeSong, updateSong } from "../services/songs";
+import { fetchAlbums } from "../services/albums";
+import { ApiResponse, Song } from "../interfaces/songs";
+import { Album } from "../interfaces/album";
 
 const SongList: React.FC = () => {
-  const { addSong, updateSong, removeSong } = useAppContext();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
-  const [albumId, setAlbumId] = useState<string>("");
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const {
-    data: songs,
-    isLoading,
-    isError,
-  } = useQuery("songs", () => fetchSongs());
+  const [albumId, setAlbumId] = useState<string | null>("");
+  const [editingId, setEditingId] = useState<string>("");
 
-  const { data: albums } = useQuery("albums", () => fetchAlbums());
-  // console.log("albums:", albums);
-  // console.log("songs:", songs);
+  const { data: songsList, refetch: refetchSongs } = useQuery<
+    ApiResponse,
+    unknown
+  >("song", fetchSongs);
+
+  const { data: albums = [] } = useQuery<Album[]>("album", fetchAlbums);
+
+  const songs = songsList?.result;
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
     setTitle("");
     setAlbumId("");
-    setEditingId(null);
+    setEditingId("");
   };
+
+  const { mutate: mutateSong } = useMutation(updateSong, {
+    onSuccess: (data) => {
+      handleClose();
+      refetchSongs();
+    },
+  });
+
+  const { mutate: removeMutation } = useMutation(removeSong, {
+    onSuccess: () => {
+      refetchSongs();
+    },
+  });
 
   const handleSubmit = () => {
-    if (editingId) {
-      updateSong(editingId, { title, albumId });
-    } else {
-      addSong({ title, albumId });
+    if (title && albumId) {
+      if (editingId) {
+        mutateSong({
+          albumId: editingId,
+          id: editingId,
+          name: title,
+        });
+      } else {
+        addSong({ name: title, albumId: albumId });
+        refetchSongs();
+        handleClose();
+      }
+
+      setTitle("");
+      setAlbumId(null);
     }
-    handleClose();
   };
 
-  const handleEdit = (song: {
-    key: string;
-    name: string;
-    album: { key: string };
-  }) => {
+  const handleEditSong = useCallback((song: Song) => {
     setTitle(song.name);
-    setEditingId(song.key);
-    // @ts-ignore
-    setAlbumId(song.album["@key"]);
+    setEditingId(song["@key"]);
+    setAlbumId(song?.album["@key"]);
     setOpen(true);
-  };
+  }, []);
 
-  const getAlbumName = (albumKey: string): string => {
-    const album = albums?.find(
-      (album: { key: string; "@key"?: string }) => album["@key"] === albumKey
-    );
+  const handleRemoveSong = useCallback(
+    (song: Song) => {
+      removeMutation({
+        id: song["@key"],
+        name: song.name,
+        albumId: song.album["@key"],
+      });
+    },
+    [removeMutation]
+  );
+
+  const getAlbumName = (albumKey: string) => {
+    const album = albums?.find((album: Album) => album["@key"] === albumKey);
     return album ? album.name : "Unknown Album";
   };
 
@@ -89,22 +117,26 @@ const SongList: React.FC = () => {
       ) : (
         <List>
           {songs &&
-            songs.map(
-              (song: { key: string; name: string; album: { key: string } }) => (
-                <ListItem key={song.key} divider>
-                  <ListItemText
-                    primary={song.name}
-                    // @ts-ignore
-                    secondary={getAlbumName(song.album["@key"])}
-                  />
-                  <Button onClick={() => handleEdit(song)}>Edit</Button>
+            songs.map((song) => (
+              <ListItem key={song.id} divider>
+                <ListItemText
+                  primary={song.name}
+                  secondary={getAlbumName(song?.album["@key"])}
+                />
+                <Button
+                  onClick={() => {
+                    console.log("song", song);
+                    handleEditSong(song);
+                  }}
+                >
+                  Edit
+                </Button>
 
-                  <Button onClick={() => removeSong(song.key)} color="error">
-                    Delete
-                  </Button>
-                </ListItem>
-              )
-            )}
+                <Button onClick={() => handleRemoveSong(song)} color="error">
+                  Delete
+                </Button>
+              </ListItem>
+            ))}
         </List>
       )}
       <Dialog open={open} onClose={handleClose}>
@@ -119,17 +151,14 @@ const SongList: React.FC = () => {
             onChange={(e) => setTitle(e.target.value)}
           />
           <FormControl fullWidth margin="dense">
-            <InputLabel shrink id="album-label">
-              Album
-            </InputLabel>
+            <InputLabel id="album-label">Album</InputLabel>
             <Select
               label="Album"
               value={albumId || ""}
               onChange={(e) => setAlbumId(e.target.value as string)}
             >
               {albums &&
-                albums?.map((album: { key: string; name: string }) => (
-                  // @ts-ignore
+                albums?.map((album) => (
                   <MenuItem key={album["@key"]} value={album["@key"]}>
                     {album.name}
                   </MenuItem>
@@ -139,7 +168,11 @@ const SongList: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" color="primary">
+          <Button
+            onClick={() => handleSubmit()}
+            variant="contained"
+            color="primary"
+          >
             Submit
           </Button>
         </DialogActions>

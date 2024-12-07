@@ -74,12 +74,6 @@ const AlbumList: React.FC = () => {
     }
   );
 
-  const deleteMutation = useMutation(deleteAlbum, {
-    onSuccess: () => {
-      queryClient.invalidateQueries("albums");
-    },
-  });
-
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
@@ -95,17 +89,6 @@ const AlbumList: React.FC = () => {
       addMutation.mutate({ title, artistId });
     }
     handleClose();
-  };
-
-  const handleEdit = (album: {
-    id: string;
-    title: string;
-    artistId: string;
-  }) => {
-    setTitle(album.title);
-    setArtistId(album.artistId);
-    setEditingId(album.id);
-    setOpen(true);
   };
 
   if (isLoading) return <CircularProgress />;
