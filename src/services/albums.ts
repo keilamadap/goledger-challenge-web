@@ -58,5 +58,6 @@ export const removeAlbum = async (key: string): Promise<unknown> => {
       },
     },
   });
+
   return response.data;
 };

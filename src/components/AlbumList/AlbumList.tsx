@@ -209,7 +209,7 @@ const AlbumList: React.FC = () => {
         <List>
           {albums &&
             albums.map((album: Album) => (
-              <ListItem key={album.id} divider>
+              <ListItem key={album["@key"]} divider>
                 <ListItemText
                   primary={album.name}
                   secondary={getArtistName(album.artist["@key"])}

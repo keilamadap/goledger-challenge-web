@@ -198,7 +198,7 @@ const SongList: React.FC = () => {
       ) : (
         <List>
           {songs.map((song) => (
-            <ListItem key={song.id} divider>
+            <ListItem key={song["@key"]} divider>
               <ListItemText
                 primary={song.name}
                 secondary={getAlbumName(song?.album["@key"])}
