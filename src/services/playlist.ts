@@ -1,8 +1,8 @@
 import {
-  CreatePlaylistParams,
+  AddPlaylistParams,
   Playlist,
   UpdatePlaylistParams,
-} from "../interfaces/playlists";
+} from "../types/playlists";
 import api from "./api";
 
 export const getPlaylists = async (): Promise<Playlist[]> => {
@@ -16,8 +16,8 @@ export const getPlaylists = async (): Promise<Playlist[]> => {
   return response.data;
 };
 
-export const createPlaylist = async (
-  playlistData: CreatePlaylistParams
+export const addNewPlaylist = async (
+  playlistData: AddPlaylistParams
 ): Promise<unknown> => {
   const response = await api.post("/invoke/createAsset", {
     asset: [
@@ -43,7 +43,6 @@ export const updatePlaylist = async (
       songs: playlistData.songs,
     },
   });
-  console.log(" response.data", response.data);
   return response.data;
 };
 

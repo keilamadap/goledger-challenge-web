@@ -10,15 +10,13 @@ export type Album = {
   };
 };
 
-export type artistSelectedType = {
-  name: string;
-  "@key": string;
-};
-
-export type CreateAlbumParams = {
+export type AddAlbumParams = {
   name: string;
   year: number;
-  artist: artistSelectedType;
+  artist: {
+    name: string;
+    "@key": string;
+  };
 };
 
 export type UpdateAlbumParams = {

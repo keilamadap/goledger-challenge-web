@@ -26,10 +26,10 @@ import {
   updateSong,
 } from "../../services/songs";
 import { fetchAlbums } from "../../services/albums";
-import { ApiResponse, Song } from "../../interfaces/songs";
+import { ApiResponse, Song } from "../../types/songs";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
-import { Album } from "../../interfaces/album";
+import { Album } from "../../types/album";
 import Snackbar from "../Snackbar/Snackbar";
 import CreateIcon from "@mui/icons-material/Create";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";

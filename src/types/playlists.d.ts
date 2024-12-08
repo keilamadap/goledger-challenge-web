@@ -5,7 +5,7 @@ export type Playlist = {
   isPrivate: boolean;
 };
 
-export type CreatePlaylistParams = {
+export type AddPlaylistParams = {
   name: string;
   isPrivate: boolean;
   selectedSongs?: {

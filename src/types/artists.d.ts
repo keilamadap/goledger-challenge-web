@@ -5,7 +5,7 @@ export type Artist = {
   "@key": string;
 };
 
-export type CreateArtistParams = {
+export type AddArtistParams = {
   name: string;
   country: string;
 };

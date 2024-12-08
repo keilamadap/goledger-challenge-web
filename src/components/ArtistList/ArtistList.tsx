@@ -16,12 +16,12 @@ import {
 } from "@mui/material";
 import * as yup from "yup";
 import {
-  createArtist,
+  addNewArtist,
   fetchArtists,
   removeArtist,
   updateArtist,
 } from "../../services/artists";
-import { Artist } from "../../interfaces/artists";
+import { Artist } from "../../types/artists";
 import CreateIcon from "@mui/icons-material/Create";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { Controller, useForm } from "react-hook-form";
@@ -103,7 +103,7 @@ const ArtistList: React.FC = () => {
       if (editingId) {
         await updateArtist(editingId, artistData);
       } else {
-        await createArtist(artistData);
+        await addNewArtist(artistData);
       }
 
       handleCloseAddArtistModal();

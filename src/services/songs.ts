@@ -1,4 +1,4 @@
-import { ApiResponse, CreateSongParams } from "../interfaces/songs";
+import { ApiResponse, AddSongParams } from "../types/songs";
 import apiClient from "./api";
 
 export const fetchSongs = async (): Promise<ApiResponse> => {
@@ -12,7 +12,7 @@ export const fetchSongs = async (): Promise<ApiResponse> => {
   return response.data;
 };
 
-export const addSong = async (payload: CreateSongParams): Promise<unknown> => {
+export const addSong = async (payload: AddSongParams): Promise<unknown> => {
   const { name, albumId } = payload;
   const { data } = await apiClient.post("/invoke/createAsset", {
     asset: [
@@ -28,9 +28,7 @@ export const addSong = async (payload: CreateSongParams): Promise<unknown> => {
   return data;
 };
 
-export const updateSong = async (
-  payload: CreateSongParams
-): Promise<unknown> => {
+export const updateSong = async (payload: AddSongParams): Promise<unknown> => {
   const { name, albumId, id } = payload;
   const { data } = await apiClient.put("/invoke/updateAsset", {
     update: {

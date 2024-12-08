@@ -22,14 +22,14 @@ import {
 import * as yup from "yup";
 import { fetchAlbums } from "../../services/albums";
 import { fetchArtists } from "../../services/artists";
-import { Album } from "../../interfaces/album";
-import { Artist } from "../../interfaces/artists";
+import { Album } from "../../types/album";
+import { Artist } from "../../types/artists";
 import SimpleSnackbar from "../Snackbar/Snackbar";
 import { Controller, useForm } from "react-hook-form";
 import CreateIcon from "@mui/icons-material/Create";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { createAlbum, removeAlbum, updateAlbum } from "../../services/albums";
+import { addNewAlbum, removeAlbum, updateAlbum } from "../../services/albums";
 import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
 
 const validationSchema = yup.object({
@@ -115,7 +115,7 @@ const AlbumList: React.FC = () => {
       if (editingId) {
         await updateAlbum(albumData);
       } else {
-        await createAlbum(albumData);
+        await addNewAlbum(albumData);
       }
 
       handleCloseAddAlbumModal();

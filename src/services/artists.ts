@@ -1,8 +1,4 @@
-import {
-  Artist,
-  CreateArtistParams,
-  UpdateArtistParams,
-} from "../interfaces/artists";
+import { Artist, AddArtistParams, UpdateArtistParams } from "../types/artists";
 import api from "./api";
 
 export const fetchArtists = async (): Promise<Artist[]> => {
@@ -16,10 +12,9 @@ export const fetchArtists = async (): Promise<Artist[]> => {
   return response.data.result;
 };
 
-export const createArtist = async (
-  artistData: CreateArtistParams
+export const addNewArtist = async (
+  artistData: AddArtistParams
 ): Promise<unknown> => {
-  console.log("artistData", artistData);
   const response = await api.post("/invoke/createAsset", {
     asset: [
       {

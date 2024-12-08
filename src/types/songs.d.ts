@@ -10,7 +10,7 @@ export type ApiResponse = {
   result: Song[];
 };
 
-export type CreateSongParams = {
+export type AddSongParams = {
   id?: string;
   name: string;
   albumId: string;
