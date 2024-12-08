@@ -3,10 +3,10 @@ import {
   CreateArtistParams,
   UpdateArtistParams,
 } from "../interfaces/artists";
-import apiClient from "./api";
+import api from "./api";
 
 export const fetchArtists = async (): Promise<Artist[]> => {
-  const response = await apiClient.post("/query/search", {
+  const response = await api.post("/query/search", {
     query: {
       selector: {
         "@assetType": "artist",
@@ -20,7 +20,7 @@ export const createArtist = async (
   artistData: CreateArtistParams
 ): Promise<unknown> => {
   console.log("artistData", artistData);
-  const response = await apiClient.post("/invoke/createAsset", {
+  const response = await api.post("/invoke/createAsset", {
     asset: [
       {
         "@assetType": "artist",
@@ -37,7 +37,7 @@ export const updateArtist = async (
   artistData: UpdateArtistParams
 ): Promise<unknown> => {
   console.log("artistData", artistData, key);
-  const response = await apiClient.put("/invoke/updateAsset", {
+  const response = await api.put("/invoke/updateAsset", {
     update: {
       "@assetType": "artist",
       "@key": key,
@@ -47,12 +47,13 @@ export const updateArtist = async (
   return response.data;
 };
 
-export const deleteArtist = async (key: string): Promise<unknown> => {
-  const response = await apiClient.delete("/invoke/deleteAsset", {
+export const removeArtist = async (key: string): Promise<unknown> => {
+  const response = await api.delete("/invoke/deleteAsset", {
     data: {
       key: {
         "@assetType": "artist",
         "@key": key,
+        cascade: true,
       },
     },
   });

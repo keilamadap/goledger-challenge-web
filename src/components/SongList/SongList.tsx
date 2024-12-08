@@ -82,7 +82,7 @@ const SongList: React.FC = () => {
     setSongToRemove(null);
   };
 
-  const handleCloseNewSongModal = () => {
+  const handleCloseAddSongModal = () => {
     setOpen(false);
     setEditingId("");
     reset();
@@ -106,7 +106,7 @@ const SongList: React.FC = () => {
       setSongs(updatedSongs.result);
       const updatedAlbums = await fetchAlbums();
       setAlbums(updatedAlbums);
-      handleCloseNewSongModal();
+      handleCloseAddSongModal();
     } catch (error) {
       handleSnackbar("Error saving the song", "error");
     } finally {
@@ -216,7 +216,7 @@ const SongList: React.FC = () => {
           ))}
         </List>
       )}
-      <Dialog open={open} onClose={handleCloseNewSongModal}>
+      <Dialog open={open} onClose={handleCloseAddSongModal}>
         <DialogTitle>{editingId ? "Edit song" : "Add song"}</DialogTitle>
         <DialogContent>
           <Controller
@@ -256,7 +256,7 @@ const SongList: React.FC = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseNewSongModal}>Cancel</Button>
+          <Button onClick={handleCloseAddSongModal}>Cancel</Button>
           <Button
             onClick={formSubmit(handleSubmit)}
             variant="contained"
@@ -278,7 +278,7 @@ const SongList: React.FC = () => {
         open={isDialogOpen}
         onClose={handleCloseConfirmDialog}
         onConfirm={handleRemoveSong}
-        title="Warning"
+        title="Attention"
         message={`Are you sure you want to delete the song "${songToRemove?.name}"?`}
       />
     </>

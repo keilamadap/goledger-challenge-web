@@ -62,7 +62,7 @@ const AlbumList: React.FC = () => {
     defaultValues: { album: "", artist: "" },
   });
 
-  const handleCloseNewAlbumModal = () => {
+  const handleCloseAddAlbumModal = () => {
     setOpenNewAlbumModal(false);
     setEditingId(null);
     reset();
@@ -118,7 +118,7 @@ const AlbumList: React.FC = () => {
         await createAlbum(albumData);
       }
 
-      handleCloseNewAlbumModal();
+      handleCloseAddAlbumModal();
       handleSnackbar("Album saved successfully", "success");
 
       await getData();
@@ -228,7 +228,7 @@ const AlbumList: React.FC = () => {
         </List>
       )}
 
-      <Dialog open={openNewAlbumModal} onClose={handleCloseNewAlbumModal}>
+      <Dialog open={openNewAlbumModal} onClose={handleCloseAddAlbumModal}>
         <DialogTitle>{editingId ? "Edit album" : "Add album"}</DialogTitle>
         <DialogContent>
           <Controller
@@ -267,7 +267,7 @@ const AlbumList: React.FC = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseNewAlbumModal}>Cancel</Button>
+          <Button onClick={handleCloseAddAlbumModal}>Cancel</Button>
           <Button
             onClick={formSubmit(handleSubmit)}
             variant="contained"
@@ -282,7 +282,7 @@ const AlbumList: React.FC = () => {
         open={isDialogOpen}
         onClose={handleCloseConfirmDialog}
         onConfirm={handleRemoveAlbum}
-        title="Warning"
+        title="Attention"
         message={`Are you sure you want to delete the album "${albumToRemove?.name}"?`}
       />
 
