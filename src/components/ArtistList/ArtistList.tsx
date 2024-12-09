@@ -13,6 +13,8 @@ import {
   CircularProgress,
   Backdrop,
   Box,
+  Pagination,
+  InputAdornment,
 } from "@mui/material";
 import * as yup from "yup";
 import {
@@ -28,6 +30,9 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import SimpleSnackbar from "../Snackbar/Snackbar";
 import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
+import SearchIcon from "@mui/icons-material/Search";
+
+const itemsPerPage = 5;
 
 const validationSchema = yup.object({
   artist: yup.string().required("Please inform an artist"),
@@ -48,6 +53,7 @@ const ArtistList: React.FC = () => {
     "success" | "error" | "warning" | "info"
   >("success");
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
 
   const {
     control,
@@ -156,9 +162,26 @@ const ArtistList: React.FC = () => {
     artist.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const totalPages = Math.ceil((filteredArtists?.length || 0) / itemsPerPage);
+
+  const paginatedItems = filteredArtists?.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
+
+  const handleChangePage = (_: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+  };
+
   useEffect(() => {
     getData();
   }, [getData]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(Math.max(totalPages, 1));
+    }
+  }, [filteredArtists?.length, totalPages, page]);
 
   return (
     <>
@@ -179,21 +202,31 @@ const ArtistList: React.FC = () => {
         <Button
           onClick={() => setOpenAddArtistModal(true)}
           variant="contained"
-          color="secondary"
+          color="primary"
           sx={{ mb: 2 }}
         >
-          Add Artist
+          Add artist
         </Button>
       </Box>
       <TextField
         fullWidth
         variant="outlined"
-        label="Search artists"
+        label="Search"
+        placeholder="Type for artist name..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, mt: 2 }}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          },
+        }}
       />
-      {filteredArtists && filteredArtists.length === 0 ? (
+      {paginatedItems && paginatedItems.length === 0 ? (
         <Typography>
           {searchTerm
             ? "No artists found matching your search."
@@ -201,8 +234,8 @@ const ArtistList: React.FC = () => {
         </Typography>
       ) : (
         <List>
-          {filteredArtists &&
-            filteredArtists.map((artist: Artist) => (
+          {paginatedItems &&
+            paginatedItems.map((artist: Artist) => (
               <ListItem key={artist["@key"]} divider>
                 <ListItemText
                   primary={artist.name}
@@ -263,12 +296,14 @@ const ArtistList: React.FC = () => {
           <Button
             onClick={formSubmit(handleSubmit)}
             variant="contained"
-            color="secondary"
+            color="primary"
           >
             Save
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Pagination count={totalPages} page={page} onChange={handleChangePage} />
 
       <ConfirmDialog
         open={isDialogOpen}

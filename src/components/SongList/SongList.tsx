@@ -18,6 +18,8 @@ import {
   CircularProgress,
   Backdrop,
   FormHelperText,
+  Pagination,
+  InputAdornment,
 } from "@mui/material";
 import {
   addSong,
@@ -35,6 +37,9 @@ import CreateIcon from "@mui/icons-material/Create";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
+import SearchIcon from "@mui/icons-material/Search";
+
+const itemsPerPage = 5;
 
 const validationSchema = yup.object({
   title: yup.string().required("Song title is required"),
@@ -55,6 +60,7 @@ const SongList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [songToRemove, setSongToRemove] = useState<Song | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
 
   const {
     control,
@@ -155,6 +161,17 @@ const SongList: React.FC = () => {
     song.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const totalPages = Math.ceil((filteredSongs?.length || 0) / itemsPerPage);
+
+  const paginatedItems = filteredSongs?.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
+
+  const handleChangePage = (_: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -174,6 +191,12 @@ const SongList: React.FC = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(Math.max(totalPages, 1));
+    }
+  }, [filteredSongs?.length, totalPages, page]);
+
   return (
     <>
       <Backdrop open={isLoading} style={{ zIndex: 1600 }}>
@@ -192,7 +215,7 @@ const SongList: React.FC = () => {
         <Button
           onClick={() => setOpen(true)}
           variant="contained"
-          color="secondary"
+          color="primary"
           sx={{ mb: 2 }}
         >
           Add song
@@ -202,11 +225,21 @@ const SongList: React.FC = () => {
         fullWidth
         variant="outlined"
         label="Search songs"
+        placeholder="Search for songs..."
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          },
+        }}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, mt: 2 }}
       />
-      {filteredSongs && filteredSongs.length === 0 ? (
+      {paginatedItems && paginatedItems.length === 0 ? (
         <Typography>
           {searchTerm
             ? "No songs found matching your search."
@@ -214,7 +247,7 @@ const SongList: React.FC = () => {
         </Typography>
       ) : (
         <List>
-          {filteredSongs.map((song) => (
+          {paginatedItems.map((song) => (
             <ListItem key={song["@key"]} divider>
               <ListItemText
                 primary={song.name}
@@ -277,12 +310,14 @@ const SongList: React.FC = () => {
           <Button
             onClick={formSubmit(handleSubmit)}
             variant="contained"
-            color="secondary"
+            color="primary"
           >
             Save
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Pagination count={totalPages} page={page} onChange={handleChangePage} />
 
       <Snackbar
         severity={snackbarSeverity}

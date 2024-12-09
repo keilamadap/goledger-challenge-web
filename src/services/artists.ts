@@ -31,7 +31,6 @@ export const updateArtist = async (
   key: string,
   artistData: UpdateArtistParams
 ): Promise<unknown> => {
-  console.log("artistData", artistData, key);
   const response = await api.put("/invoke/updateAsset", {
     update: {
       "@assetType": "artist",

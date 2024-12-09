@@ -18,6 +18,8 @@ import {
   FormHelperText,
   Backdrop,
   Box,
+  Pagination,
+  InputAdornment,
 } from "@mui/material";
 import * as yup from "yup";
 import { fetchAlbums } from "../../services/albums";
@@ -25,12 +27,15 @@ import { fetchArtists } from "../../services/artists";
 import { Album } from "../../types/album";
 import { Artist } from "../../types/artists";
 import SimpleSnackbar from "../Snackbar/Snackbar";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, FieldValues, useForm } from "react-hook-form";
 import CreateIcon from "@mui/icons-material/Create";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { addNewAlbum, removeAlbum, updateAlbum } from "../../services/albums";
 import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
+import SearchIcon from "@mui/icons-material/Search";
+
+const itemsPerPage = 5;
 
 const validationSchema = yup.object({
   album: yup.string().required("Album title is required"),
@@ -51,6 +56,7 @@ const AlbumList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [albumToRemove, setAlbumToRemove] = useState<Album | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
 
   const {
     control,
@@ -92,7 +98,7 @@ const AlbumList: React.FC = () => {
     }
   }, [handleSnackbar]);
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: FieldValues) => {
     setIsLoading(true);
 
     try {
@@ -178,9 +184,26 @@ const AlbumList: React.FC = () => {
     album.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const totalPages = Math.ceil((filteredAlbums?.length || 0) / itemsPerPage);
+
+  const paginatedItems = filteredAlbums?.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
+
+  const handleChangePage = (_: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+  };
+
   useEffect(() => {
     getData();
   }, [getData]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(Math.max(totalPages, 1));
+    }
+  }, [filteredAlbums?.length, totalPages, page]);
 
   return (
     <>
@@ -200,7 +223,7 @@ const AlbumList: React.FC = () => {
         <Button
           onClick={() => setOpenNewAlbumModal(true)}
           variant="contained"
-          color="secondary"
+          color="primary"
           sx={{ mb: 2 }}
         >
           Add album
@@ -209,12 +232,22 @@ const AlbumList: React.FC = () => {
       <TextField
         fullWidth
         variant="outlined"
-        label="Search albums"
+        label="Search"
+        placeholder="Search albums..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, mt: 2 }}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          },
+        }}
       />
-      {filteredAlbums && filteredAlbums.length === 0 ? (
+      {paginatedItems && paginatedItems.length === 0 ? (
         <Typography>
           {searchTerm
             ? "No albums found matching your search."
@@ -222,8 +255,8 @@ const AlbumList: React.FC = () => {
         </Typography>
       ) : (
         <List>
-          {filteredAlbums &&
-            filteredAlbums.map((album: Album) => (
+          {paginatedItems &&
+            paginatedItems.map((album: Album) => (
               <ListItem key={album["@key"]} divider>
                 <ListItemText
                   primary={album.name}
@@ -286,12 +319,14 @@ const AlbumList: React.FC = () => {
           <Button
             onClick={formSubmit(handleSubmit)}
             variant="contained"
-            color="secondary"
+            color="primary"
           >
             Save
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Pagination count={totalPages} page={page} onChange={handleChangePage} />
 
       <ConfirmDialog
         open={isDialogOpen}

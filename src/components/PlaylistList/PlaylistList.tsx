@@ -18,6 +18,7 @@ import {
   FormHelperText,
   Box,
   Switch,
+  InputAdornment,
 } from "@mui/material";
 import * as yup from "yup";
 import {
@@ -36,6 +37,10 @@ import CreateIcon from "@mui/icons-material/Create";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
 import HttpsIcon from "@mui/icons-material/Https";
+import Pagination from "@mui/material/Pagination";
+import SearchIcon from "@mui/icons-material/Search";
+
+const itemsPerPage = 5;
 
 const validationSchema = yup.object({
   playlist: yup.string().required("Please inform a playlist name"),
@@ -46,7 +51,6 @@ const validationSchema = yup.object({
     .required("Please select a song"),
   private: yup.boolean(),
 });
-
 const PlaylistList: React.FC = () => {
   const [openAddPlaylistModal, setOpenAddPlaylistModal] = useState(false);
   const [allSongs, setAllSongs] = useState<Song[]>([]);
@@ -63,6 +67,7 @@ const PlaylistList: React.FC = () => {
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
 
   const {
     control,
@@ -172,9 +177,9 @@ const PlaylistList: React.FC = () => {
       await removePlaylist(playlistToRemove["@key"]);
       const updatedPlaylists: Playlist[] = await fetchPlaylists();
       setPlaylists(updatedPlaylists);
-      handleSnackbar("Song removed successfully", "success");
+      handleSnackbar("Playlist removed successfully", "success");
     } catch (error) {
-      handleSnackbar("Error removing the song", "error");
+      handleSnackbar("Error removing the playlist", "error");
     } finally {
       setIsLoading(false);
       setIsDialogOpen(false);
@@ -186,9 +191,26 @@ const PlaylistList: React.FC = () => {
     playlist.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const totalPages = Math.ceil((filteredPlaylists?.length || 0) / itemsPerPage);
+
+  const paginatedItems = filteredPlaylists?.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
+
+  const handleChangePage = (_: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+  };
+
   useEffect(() => {
     getData();
   }, [getData]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(Math.max(totalPages, 1));
+    }
+  }, [filteredPlaylists?.length, totalPages, page]);
 
   return (
     <>
@@ -218,12 +240,22 @@ const PlaylistList: React.FC = () => {
       <TextField
         fullWidth
         variant="outlined"
-        label="Search playlists"
+        label="Search"
+        placeholder="Search for playlists..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, mt: 2 }}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          },
+        }}
       />
-      {filteredPlaylists && filteredPlaylists.length === 0 ? (
+      {paginatedItems && paginatedItems.length === 0 ? (
         <Typography>
           {searchTerm
             ? "No playlists found matching your search."
@@ -231,7 +263,7 @@ const PlaylistList: React.FC = () => {
         </Typography>
       ) : (
         <List>
-          {filteredPlaylists?.map((playlist) => (
+          {paginatedItems?.map((playlist) => (
             <ListItem key={playlist["@key"]} divider>
               <ListItemText
                 primary={
@@ -363,6 +395,8 @@ const PlaylistList: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Pagination count={totalPages} page={page} onChange={handleChangePage} />
 
       <SimpleSnackbar
         severity={snackbarSeverity}
