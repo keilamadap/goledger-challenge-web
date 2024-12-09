@@ -26,7 +26,6 @@ const MusicBanner: React.FC = () => {
         preserveAspectRatio="none"
         style={{ position: "absolute", top: 0, left: 0 }}
       >
-        {/* Wave background */}
         <path
           d="M0,0 Q250,60 500,30 T1000,60 L1000,120 L0,120 Z"
           fill={theme.palette.primary.dark}

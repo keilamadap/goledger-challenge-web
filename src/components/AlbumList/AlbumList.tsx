@@ -247,7 +247,7 @@ const AlbumList: React.FC = () => {
           },
         }}
       />
-      {paginatedItems && paginatedItems.length === 0 ? (
+      {!isLoading && paginatedItems.length === 0 ? (
         <Typography>
           {searchTerm
             ? "No albums found matching your search."

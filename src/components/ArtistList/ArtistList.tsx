@@ -26,7 +26,7 @@ import {
 import { Artist } from "../../types/artists";
 import CreateIcon from "@mui/icons-material/Create";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, FieldValues, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import SimpleSnackbar from "../Snackbar/Snackbar";
 import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
@@ -93,7 +93,7 @@ const ArtistList: React.FC = () => {
     }
   }, [handleSnackbar]);
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: FieldValues) => {
     setIsLoading(true);
     try {
       const selectedArtist = artists?.find(
@@ -226,7 +226,7 @@ const ArtistList: React.FC = () => {
           },
         }}
       />
-      {paginatedItems && paginatedItems.length === 0 ? (
+      {!isLoading && paginatedItems?.length === 0 ? (
         <Typography>
           {searchTerm
             ? "No artists found matching your search."

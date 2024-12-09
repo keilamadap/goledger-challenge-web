@@ -29,7 +29,7 @@ import {
 } from "../../services/songs";
 import { fetchAlbums } from "../../services/albums";
 import { ApiResponse, Song } from "../../types/songs";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, FieldValues } from "react-hook-form";
 import * as yup from "yup";
 import { Album } from "../../types/album";
 import Snackbar from "../Snackbar/Snackbar";
@@ -95,7 +95,7 @@ const SongList: React.FC = () => {
     reset();
   };
 
-  const handleSubmit = async (data: { title: string; albumId: string }) => {
+  const handleSubmit = async (data: FieldValues) => {
     setIsLoading(true);
     try {
       if (editingId) {
@@ -239,7 +239,7 @@ const SongList: React.FC = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
         sx={{ mb: 2, mt: 2 }}
       />
-      {paginatedItems && paginatedItems.length === 0 ? (
+      {!isLoading && paginatedItems.length === 0 ? (
         <Typography>
           {searchTerm
             ? "No songs found matching your search."
