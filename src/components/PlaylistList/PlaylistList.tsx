@@ -17,6 +17,7 @@ import {
   Checkbox,
   FormHelperText,
   Box,
+  Switch,
 } from "@mui/material";
 import * as yup from "yup";
 import {
@@ -271,41 +272,58 @@ const PlaylistList: React.FC = () => {
             control={control}
             render={({ field }) => (
               <FormControlLabel
-                control={<Checkbox {...field} checked={field.value} />}
-                label="Private Playlist"
+                control={<Switch {...field} checked={field.value} />}
+                label="Private playlist"
               />
             )}
           />
-          <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
-            Select Songs
+          <Typography
+            variant="h6"
+            gutterBottom
+            sx={{
+              mt: 1,
+              fontWeight: 600,
+            }}
+          >
+            Select songs:
           </Typography>
           <Controller
             name="songs"
             control={control}
             render={({ field }) => (
               <FormGroup>
-                {allSongs.map((song) => (
-                  <FormControlLabel
-                    key={song["@key"]}
-                    control={
-                      <Checkbox
-                        checked={field.value.includes(song["@key"])}
-                        onChange={(e) => {
-                          const newValue = e.target.checked
-                            ? [...field.value, song["@key"]]
-                            : field.value.filter(
-                                (id: string) => id !== song["@key"]
-                              );
-                          field.onChange(newValue);
-                        }}
-                      />
-                    }
-                    label={song.name}
-                  />
-                ))}
+                {allSongs.length === 0 ? (
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "text.secondary", mt: 2 }}
+                  >
+                    No songs available
+                  </Typography>
+                ) : (
+                  allSongs.map((song) => (
+                    <FormControlLabel
+                      key={song["@key"]}
+                      control={
+                        <Checkbox
+                          checked={field.value.includes(song["@key"])}
+                          onChange={(e) => {
+                            const newValue = e.target.checked
+                              ? [...field.value, song["@key"]]
+                              : field.value.filter(
+                                  (id: string) => id !== song["@key"]
+                                );
+                            field.onChange(newValue);
+                          }}
+                        />
+                      }
+                      label={song.name}
+                    />
+                  ))
+                )}
               </FormGroup>
             )}
           />
+
           {errors.songs && (
             <FormHelperText error>{errors.songs.message}</FormHelperText>
           )}
@@ -333,7 +351,7 @@ const PlaylistList: React.FC = () => {
         onClose={handleCloseConfirmDialog}
         onConfirm={handleRemovePlaylist}
         title="Attention"
-        message={`Are you sure you want to delete the song "${playlistToRemove?.name}"?`}
+        message={`Are you sure you want to delete the playlist "${playlistToRemove?.name}"?`}
       />
     </>
   );
