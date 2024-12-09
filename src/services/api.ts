@@ -1,14 +1,16 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://ec2-54-91-215-149.compute-1.amazonaws.com/api",
+  baseURL: process.env.REACT_APP_API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
   auth: {
-    username: "psAdmin",
-    password: "goledger",
+    username: process.env.REACT_APP_API_USERNAME || "",
+    password: process.env.REACT_APP_API_PASSWORD || "",
   },
 });
+
+// console.log("Base URL:", process.env.REACT_APP_API_BASE_URL);
 
 export default api;
