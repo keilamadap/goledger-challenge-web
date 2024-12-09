@@ -43,3 +43,4 @@ Cada tela do projeto permite a interação com os itens de forma completa, inclu
 - **Exibição**: Lista de itens com possibilidade de visualização.
 - **Edição**: Funcionalidade para editar itens já existentes.
 - **Exclusão**: Opção para excluir itens da lista.
+- **Pesquisa**: Opção para pesquisar itens da lista.
