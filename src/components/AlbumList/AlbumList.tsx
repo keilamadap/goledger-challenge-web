@@ -233,7 +233,7 @@ const AlbumList: React.FC = () => {
         fullWidth
         variant="outlined"
         label="Search"
-        placeholder="Search albums..."
+        placeholder="Search for albums..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         sx={{ mb: 2, mt: 2 }}

@@ -224,7 +224,7 @@ const SongList: React.FC = () => {
       <TextField
         fullWidth
         variant="outlined"
-        label="Search songs"
+        label="Search"
         placeholder="Search for songs..."
         slotProps={{
           input: {

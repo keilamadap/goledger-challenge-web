@@ -269,9 +269,7 @@ const PlaylistList: React.FC = () => {
                 primary={
                   <>
                     {playlist.name}
-                    {playlist.private && (
-                      <HttpsIcon sx={{ width: "30px" }} />
-                    )}{" "}
+                    {playlist.private && <HttpsIcon sx={{ width: "30px" }} />}
                   </>
                 }
                 secondary={
