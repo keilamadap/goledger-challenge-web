@@ -261,7 +261,7 @@ const AlbumList: React.FC = () => {
                 </Select>
                 {errors.artist && (
                   <FormHelperText>{errors.artist.message}</FormHelperText>
-                )}{" "}
+                )}
               </FormControl>
             )}
           />

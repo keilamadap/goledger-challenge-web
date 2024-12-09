@@ -33,7 +33,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       >
         <Container maxWidth="sm">
           <Typography variant="body2" color="#be2fff" align="center">
-            © {new Date().getFullYear()} Blockchain Streaming Service
+            © {new Date().getFullYear()} Streaming Service
           </Typography>
         </Container>
       </Box>
