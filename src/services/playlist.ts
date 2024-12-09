@@ -5,7 +5,7 @@ import {
 } from "../types/playlists";
 import api from "./api";
 
-export const getPlaylists = async (): Promise<Playlist[]> => {
+export const fetchPlaylists = async (): Promise<Playlist[]> => {
   const response = await api.post("/query/search", {
     query: {
       selector: {
@@ -13,7 +13,7 @@ export const getPlaylists = async (): Promise<Playlist[]> => {
       },
     },
   });
-  return response.data;
+  return response.data.result;
 };
 
 export const addNewPlaylist = async (
@@ -24,8 +24,8 @@ export const addNewPlaylist = async (
       {
         "@assetType": "playlist",
         name: playlistData.name,
-        songs: playlistData.selectedSongs,
-        private: playlistData.isPrivate,
+        songs: playlistData.songs,
+        private: playlistData.private,
       },
     ],
   });
@@ -38,7 +38,7 @@ export const updatePlaylist = async (
   const response = await api.put("/invoke/updateAsset", {
     update: {
       "@assetType": "playlist",
-      "@key": playlistData.id,
+      "@key": playlistData["@key"],
       private: playlistData.private,
       songs: playlistData.songs,
     },
@@ -46,7 +46,7 @@ export const updatePlaylist = async (
   return response.data;
 };
 
-export const deletePlaylist = async (key: string): Promise<unknown> => {
+export const removePlaylist = async (key: string): Promise<unknown> => {
   const response = await api.delete("/invoke/deleteAsset", {
     data: {
       key: {

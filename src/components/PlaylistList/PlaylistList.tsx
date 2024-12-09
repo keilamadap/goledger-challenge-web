@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-// import { useAppContext } from "../contexts/AppContext";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   List,
   ListItem,
@@ -10,130 +9,332 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
   Typography,
+  Backdrop,
+  CircularProgress,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+  FormHelperText,
+  Box,
 } from "@mui/material";
+import * as yup from "yup";
+import {
+  addNewPlaylist,
+  fetchPlaylists,
+  removePlaylist,
+  updatePlaylist,
+} from "../../services/playlist";
+import { Playlist } from "../../types/playlists";
+import { Controller, FieldValues, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { ApiResponse, Song } from "../../types/songs";
+import { fetchSongs } from "../../services/songs";
+import SimpleSnackbar from "../Snackbar/Snackbar";
+import CreateIcon from "@mui/icons-material/Create";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
+
+const validationSchema = yup.object({
+  playlist: yup.string().required("Please inform a playlist name"),
+  songs: yup
+    .array()
+    .of(yup.string().required("Each song must be a valid string"))
+    .min(1, "Please select at least one song")
+    .required("Please select a song"),
+  private: yup.boolean(),
+});
 
 const PlaylistList: React.FC = () => {
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
+  const [openAddPlaylistModal, setOpenAddPlaylistModal] = useState(false);
+  const [allSongs, setAllSongs] = useState<Song[]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<
+    "success" | "error" | "warning" | "info"
+  >("success");
+  const [playlistToRemove, setPlaylistToRemove] = useState<Playlist | null>(
+    null
+  );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => {
-    setOpen(false);
-    setName("");
-    setSelectedSongs([]);
+  const {
+    control,
+    handleSubmit: formSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+    defaultValues: { playlist: "", songs: [], private: false },
+  });
+
+  const handleCloseAddPlaylistModal = () => {
+    setOpenAddPlaylistModal(false);
     setEditingId(null);
+    reset();
   };
 
-  const handleSubmit = () => {
-    if (editingId) {
-      // updatePlaylist(editingId, { name, songIds: selectedSongs });
-    } else {
-      // addPlaylist({ name, songIds: selectedSongs });
+  const handleSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbarMessage(message);
+    setIsSnackbarOpen(true);
+    setSnackbarSeverity(severity);
+  };
+
+  const getData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const playlistData: Playlist[] = await fetchPlaylists();
+      setPlaylists(playlistData);
+      const songsData: ApiResponse = await fetchSongs();
+      setAllSongs(songsData.result);
+    } catch (error) {
+      console.error("Error fetching data", error);
+    } finally {
+      setIsLoading(false);
     }
-    handleClose();
+  }, []);
+
+  const handleSubmit = async (data: FieldValues) => {
+    setIsLoading(true);
+    try {
+      const formattedSongs = data.songs.map((songKey: string) => {
+        const songDetails = allSongs.find((song) => song["@key"] === songKey);
+        return {
+          "@assetType": "song",
+          "@key": songKey,
+          name: songDetails?.name || "Unknown",
+          album: {
+            "@assetType": "album",
+            "@key": songDetails?.album["@key"] || "",
+          },
+        };
+      });
+
+      const payload = {
+        "@assetType": "playlist",
+        "@key": editingId || undefined,
+        name: data.playlist,
+        private: data.private,
+        songs: formattedSongs,
+      };
+
+      if (editingId) {
+        await updatePlaylist(payload);
+        handleSnackbar("Playlist updated successfully", "success");
+      } else {
+        await addNewPlaylist(payload);
+        handleSnackbar("Playlist created successfully", "success");
+      }
+
+      const updatedPlaylists = await fetchPlaylists();
+      setPlaylists(updatedPlaylists);
+      handleCloseAddPlaylistModal();
+    } catch (error) {
+      console.error("Error saving the playlist:", error);
+      handleSnackbar("Error saving the playlist", "error");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleEdit = (playlist: {
-    id: string;
-    name: string;
-    songIds: string[];
-  }) => {
-    setName(playlist.name);
-    setSelectedSongs(playlist.songIds);
-    setEditingId(playlist.id);
-    setOpen(true);
+  const handleEdit = (playlist: Playlist) => {
+    setValue("playlist", playlist.name);
+    setValue(
+      "songs",
+      playlist.songs.map((song) => song["@key"])
+    );
+    setValue("private", playlist.private);
+    setEditingId(playlist["@key"]);
+    setOpenAddPlaylistModal(true);
   };
+
+  const handleOpenConfirmDialog = (playlist: Playlist) => {
+    setPlaylistToRemove(playlist);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setIsDialogOpen(false);
+    setPlaylistToRemove(null);
+  };
+
+  const handleRemovePlaylist = useCallback(async () => {
+    if (!playlistToRemove) return;
+    setIsLoading(true);
+    try {
+      await removePlaylist(playlistToRemove["@key"]);
+      const updatedPlaylists: Playlist[] = await fetchPlaylists();
+      setPlaylists(updatedPlaylists);
+      handleSnackbar("Song removed successfully", "success");
+    } catch (error) {
+      handleSnackbar("Error removing the song", "error");
+    } finally {
+      setIsLoading(false);
+      setIsDialogOpen(false);
+      setPlaylistToRemove(null);
+    }
+  }, [playlistToRemove]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return (
     <>
-      <Typography variant="h4" gutterBottom>
-        Playlists
-      </Typography>
-      <Button
-        onClick={handleOpen}
-        variant="contained"
-        color="primary"
-        sx={{ mb: 2 }}
+      <Backdrop open={isLoading} style={{ zIndex: 1600 }}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
       >
-        Add Playlist
-      </Button>
-      {/* {playlists && playlists.length === 0 ? (
+        <Typography variant="h4" gutterBottom>
+          Playlists
+        </Typography>
+        <Button
+          onClick={() => setOpenAddPlaylistModal(true)}
+          variant="contained"
+          color="secondary"
+          sx={{ mb: 2 }}
+        >
+          Add playlist
+        </Button>
+      </Box>
+      {playlists && playlists.length === 0 ? (
         <Typography>
           No playlists found. Create a playlist to get started!
         </Typography>
       ) : (
         <List>
-          {playlists &&
-            playlists.map(
-              (playlist: { id: string; name: string; songIds: string[] }) => (
-                <ListItem key={playlist.id} divider>
-                  <ListItemText
-                    primary={playlist.name}
-                    secondary={`${playlist.songIds.length} songs`}
-                  />
-                  <Button onClick={() => handleEdit(playlist)}>Edit</Button>
-                  <Button
-                    onClick={() => removePlaylist(playlist.id)}
-                    color="error"
-                  >
-                    Delete
-                  </Button>
-                </ListItem>
-              )
-            )}
+          {playlists?.map((playlist) => (
+            <ListItem key={playlist["@key"]} divider>
+              <ListItemText
+                primary={playlist.name}
+                secondary={
+                  playlist.songs?.length > 0
+                    ? playlist.songs
+                        .map(
+                          (song) =>
+                            allSongs.find((s) => s["@key"] === song["@key"])
+                              ?.name || "Unknown"
+                        )
+                        .join(", ")
+                    : "No songs"
+                }
+              />
+              <Button onClick={() => handleEdit(playlist)}>
+                <CreateIcon />
+              </Button>
+              <Button
+                onClick={() => handleOpenConfirmDialog(playlist)}
+                color="error"
+              >
+                <DeleteOutlineIcon />
+              </Button>
+            </ListItem>
+          ))}
         </List>
-      )} */}
-      <Dialog open={open} onClose={handleClose}>
+      )}
+      <Dialog
+        open={openAddPlaylistModal}
+        onClose={handleCloseAddPlaylistModal}
+        fullWidth
+      >
         <DialogTitle>
-          {editingId ? "Edit Playlist" : "Add Playlist"}
+          {editingId ? "Edit playlist" : "Add playlist"}
         </DialogTitle>
-        {/* <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Playlist Name"
-            fullWidth
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+        <DialogContent>
+          <Controller
+            name="playlist"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                autoFocus
+                margin="dense"
+                label="Playlist name"
+                fullWidth
+                error={!!errors.playlist}
+                helperText={errors.playlist?.message}
+              />
+            )}
           />
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Songs</InputLabel>
-            <Select
-              multiple
-              value={selectedSongs}
-              onChange={(e) => setSelectedSongs(e.target.value as string[])}
-              renderValue={(selected) => (
-                <div>
-                  {(selected as string[]).map((value) => (
-                    <span key={value}>
-                      {songs.find((s) => s.id === value)?.title},{" "}
-                    </span>
-                  ))}
-                </div>
-              )}
-            >
-              {songs.map((song) => (
-                <MenuItem key={song.id} value={song.id}>
-                  {song.title}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </DialogContent> */}
+          <Controller
+            name="private"
+            control={control}
+            render={({ field }) => (
+              <FormControlLabel
+                control={<Checkbox {...field} checked={field.value} />}
+                label="Private Playlist"
+              />
+            )}
+          />
+          <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
+            Select Songs
+          </Typography>
+          <Controller
+            name="songs"
+            control={control}
+            render={({ field }) => (
+              <FormGroup>
+                {allSongs.map((song) => (
+                  <FormControlLabel
+                    key={song["@key"]}
+                    control={
+                      <Checkbox
+                        checked={field.value.includes(song["@key"])}
+                        onChange={(e) => {
+                          const newValue = e.target.checked
+                            ? [...field.value, song["@key"]]
+                            : field.value.filter(
+                                (id: string) => id !== song["@key"]
+                              );
+                          field.onChange(newValue);
+                        }}
+                      />
+                    }
+                    label={song.name}
+                  />
+                ))}
+              </FormGroup>
+            )}
+          />
+          {errors.songs && (
+            <FormHelperText error>{errors.songs.message}</FormHelperText>
+          )}
+        </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" color="primary">
-            Submit
+          <Button onClick={handleCloseAddPlaylistModal}>Cancel</Button>
+          <Button
+            onClick={formSubmit(handleSubmit)}
+            variant="contained"
+            color="secondary"
+          >
+            Save
           </Button>
         </DialogActions>
       </Dialog>
+
+      <SimpleSnackbar
+        severity={snackbarSeverity}
+        isOpen={isSnackbarOpen}
+        setIsOpen={setIsSnackbarOpen}
+        message={snackbarMessage}
+      />
+      <ConfirmDialog
+        open={isDialogOpen}
+        onClose={handleCloseConfirmDialog}
+        onConfirm={handleRemovePlaylist}
+        title="Attention"
+        message={`Are you sure you want to delete the song "${playlistToRemove?.name}"?`}
+      />
     </>
   );
 };

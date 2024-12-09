@@ -1,21 +1,26 @@
+import { Song } from "./songs";
+
 export type Playlist = {
   id: string;
   name: string;
-  songs: string[];
-  isPrivate: boolean;
+  songs: Song[];
+  private: boolean;
+  "@key": string;
 };
 
 export type AddPlaylistParams = {
   name: string;
-  isPrivate: boolean;
-  selectedSongs?: {
+  "@key"?: string;
+  private: boolean;
+  songs?: {
     "@key": string;
   }[];
 };
 
 export type UpdatePlaylistParams = {
-  id: string;
   private: boolean;
+  "@key"?: string;
+  name: string;
   songs: {
     "@key": string;
   }[];

@@ -245,7 +245,7 @@ const ArtistList: React.FC = () => {
           <Button
             onClick={formSubmit(handleSubmit)}
             variant="contained"
-            color="primary"
+            color="secondary"
           >
             Save
           </Button>
