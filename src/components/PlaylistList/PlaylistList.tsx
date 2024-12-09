@@ -35,6 +35,7 @@ import SimpleSnackbar from "../Snackbar/Snackbar";
 import CreateIcon from "@mui/icons-material/Create";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ConfirmDialog from "../ConfirmDialog/ConfirmDialog";
+import HttpsIcon from "@mui/icons-material/Https";
 
 const validationSchema = yup.object({
   playlist: yup.string().required("Please inform a playlist name"),
@@ -61,6 +62,7 @@ const PlaylistList: React.FC = () => {
     null
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     control,
@@ -180,6 +182,10 @@ const PlaylistList: React.FC = () => {
     }
   }, [playlistToRemove]);
 
+  const filteredPlaylists = playlists?.filter((playlist) =>
+    playlist.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   useEffect(() => {
     getData();
   }, [getData]);
@@ -202,22 +208,40 @@ const PlaylistList: React.FC = () => {
         <Button
           onClick={() => setOpenAddPlaylistModal(true)}
           variant="contained"
-          color="secondary"
+          color="primary"
           sx={{ mb: 2 }}
         >
           Add playlist
         </Button>
       </Box>
-      {playlists && playlists.length === 0 ? (
+
+      <TextField
+        fullWidth
+        variant="outlined"
+        label="Search playlists"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        sx={{ mb: 2 }}
+      />
+      {filteredPlaylists && filteredPlaylists.length === 0 ? (
         <Typography>
-          No playlists found. Create a playlist to get started!
+          {searchTerm
+            ? "No playlists found matching your search."
+            : "No playlists found. Create a playlist to get started!"}
         </Typography>
       ) : (
         <List>
-          {playlists?.map((playlist) => (
+          {filteredPlaylists?.map((playlist) => (
             <ListItem key={playlist["@key"]} divider>
               <ListItemText
-                primary={playlist.name}
+                primary={
+                  <>
+                    {playlist.name}
+                    {playlist.private && (
+                      <HttpsIcon sx={{ width: "30px" }} />
+                    )}{" "}
+                  </>
+                }
                 secondary={
                   playlist.songs?.length > 0
                     ? playlist.songs
@@ -333,7 +357,7 @@ const PlaylistList: React.FC = () => {
           <Button
             onClick={formSubmit(handleSubmit)}
             variant="contained"
-            color="secondary"
+            color="primary"
           >
             Save
           </Button>

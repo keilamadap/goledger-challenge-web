@@ -40,6 +40,7 @@ export const updatePlaylist = async (
       "@assetType": "playlist",
       "@key": playlistData["@key"],
       private: playlistData.private,
+      name: playlistData.name,
       songs: playlistData.songs,
     },
   });

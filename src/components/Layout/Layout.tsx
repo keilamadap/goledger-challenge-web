@@ -1,6 +1,6 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Container, Box } from "@mui/material";
-import HeadsetIcon from "@mui/icons-material/Headset";
+import { Typography, Container, Box } from "@mui/material";
+import MusicBanner from "../MusicBanner/Banner";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,30 +9,16 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <AppBar position="static" sx={{ backgroundColor: "#7b1fa2" }}>
-        <Toolbar>
-          <Typography
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: "1rem",
-            }}
-            variant="h6"
-          >
-            <HeadsetIcon />
-            Streaming Platform
-          </Typography>
-        </Toolbar>
-      </AppBar>
+      <MusicBanner />
       <Container component="main" sx={{ mt: 4, mb: 4, flex: 1 }}>
         {children}
       </Container>
       <Box
         component="footer"
-        sx={{ py: 3, px: 2, mt: "auto", backgroundColor: "#401055" }}
+        sx={{ py: 3, px: 2, mt: "auto", backgroundColor: "#1976d2" }}
       >
         <Container maxWidth="sm">
-          <Typography variant="body2" color="#be2fff" align="center">
+          <Typography variant="body2" color="#FFF" align="center">
             © {new Date().getFullYear()} Streaming Service
           </Typography>
         </Container>

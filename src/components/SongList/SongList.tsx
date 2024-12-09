@@ -54,6 +54,7 @@ const SongList: React.FC = () => {
   >("success");
   const [isLoading, setIsLoading] = useState(false);
   const [songToRemove, setSongToRemove] = useState<Song | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     control,
@@ -150,6 +151,10 @@ const SongList: React.FC = () => {
     return album ? album.name : "Unknown Album";
   };
 
+  const filteredSongs = songs?.filter((song) =>
+    song.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -193,11 +198,23 @@ const SongList: React.FC = () => {
           Add song
         </Button>
       </Box>
-      {!isLoading && songs.length === 0 ? (
-        <Typography>No songs found. Add some songs to get started!</Typography>
+      <TextField
+        fullWidth
+        variant="outlined"
+        label="Search songs"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        sx={{ mb: 2 }}
+      />
+      {filteredSongs && filteredSongs.length === 0 ? (
+        <Typography>
+          {searchTerm
+            ? "No songs found matching your search."
+            : "No songs found. Create a playlist to get started!"}
+        </Typography>
       ) : (
         <List>
-          {songs.map((song) => (
+          {filteredSongs.map((song) => (
             <ListItem key={song["@key"]} divider>
               <ListItemText
                 primary={song.name}

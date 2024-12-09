@@ -47,6 +47,7 @@ const ArtistList: React.FC = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState<
     "success" | "error" | "warning" | "info"
   >("success");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     control,
@@ -151,6 +152,10 @@ const ArtistList: React.FC = () => {
     setArtistToRemove(null);
   };
 
+  const filteredArtists = artists?.filter((artist) =>
+    artist.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   useEffect(() => {
     getData();
   }, [getData]);
@@ -180,16 +185,29 @@ const ArtistList: React.FC = () => {
           Add Artist
         </Button>
       </Box>
-      {!isLoading && artists?.length === 0 ? (
+      <TextField
+        fullWidth
+        variant="outlined"
+        label="Search artists"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        sx={{ mb: 2 }}
+      />
+      {filteredArtists && filteredArtists.length === 0 ? (
         <Typography>
-          No artists found. Add some artists to get started!
+          {searchTerm
+            ? "No artists found matching your search."
+            : "No artists found. Create a playlist to get started!"}
         </Typography>
       ) : (
         <List>
-          {artists &&
-            artists.map((artist: Artist) => (
+          {filteredArtists &&
+            filteredArtists.map((artist: Artist) => (
               <ListItem key={artist["@key"]} divider>
-                <ListItemText primary={artist.name} />
+                <ListItemText
+                  primary={artist.name}
+                  secondary={artist.country}
+                />
                 <Button onClick={() => handleEditArtist(artist)}>
                   {" "}
                   <CreateIcon />

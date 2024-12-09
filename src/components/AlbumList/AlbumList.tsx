@@ -50,6 +50,7 @@ const AlbumList: React.FC = () => {
   >("success");
   const [isLoading, setIsLoading] = useState(false);
   const [albumToRemove, setAlbumToRemove] = useState<Album | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     control,
@@ -173,6 +174,10 @@ const AlbumList: React.FC = () => {
     setAlbumToRemove(null);
   };
 
+  const filteredAlbums = albums?.filter((album) =>
+    album.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   useEffect(() => {
     getData();
   }, [getData]);
@@ -201,14 +206,24 @@ const AlbumList: React.FC = () => {
           Add album
         </Button>
       </Box>
-      {!isLoading && albums?.length === 0 ? (
+      <TextField
+        fullWidth
+        variant="outlined"
+        label="Search albums"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        sx={{ mb: 2 }}
+      />
+      {filteredAlbums && filteredAlbums.length === 0 ? (
         <Typography>
-          No albums found. Add some albums to get started!
+          {searchTerm
+            ? "No albums found matching your search."
+            : "No albums found. Create a playlist to get started!"}
         </Typography>
       ) : (
         <List>
-          {albums &&
-            albums.map((album: Album) => (
+          {filteredAlbums &&
+            filteredAlbums.map((album: Album) => (
               <ListItem key={album["@key"]} divider>
                 <ListItemText
                   primary={album.name}

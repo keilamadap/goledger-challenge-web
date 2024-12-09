@@ -27,14 +27,14 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>{message}</DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>CANCEL</Button>
+        <Button onClick={onClose}>Cancel</Button>
         <Button
           onClick={onConfirm}
           variant="contained"
-          color="secondary"
+          color="primary"
           autoFocus
         >
-          SAVE
+          Save
         </Button>
       </DialogActions>
     </Dialog>
