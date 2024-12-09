@@ -106,7 +106,7 @@ const AlbumList: React.FC = () => {
         (artist) => artist["@key"] === values.artist
       );
 
-      const albumData = {
+      const payload = {
         "@assetType": "album",
         "@key": editingId || "",
         name: values.album,
@@ -120,9 +120,9 @@ const AlbumList: React.FC = () => {
       };
 
       if (editingId) {
-        await updateAlbum(albumData);
+        await updateAlbum(payload);
       } else {
-        await addNewAlbum(albumData);
+        await addNewAlbum(payload);
       }
 
       handleCloseAddAlbumModal();

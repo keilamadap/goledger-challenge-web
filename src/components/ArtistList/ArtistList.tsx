@@ -100,7 +100,7 @@ const ArtistList: React.FC = () => {
         (artist) => artist["@key"] === editingId
       );
 
-      const artistData = {
+      const payload = {
         "@assetType": "artist",
         "@key": editingId || "",
         name: values.artist || "",
@@ -108,9 +108,9 @@ const ArtistList: React.FC = () => {
       };
 
       if (editingId) {
-        await updateArtist(editingId, artistData);
+        await updateArtist(editingId, payload);
       } else {
-        await addNewArtist(artistData);
+        await addNewArtist(payload);
       }
 
       handleCloseAddArtistModal();
